@@ -1,0 +1,33 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+tracing {
+  sampling_fraction = 1.0
+  write_to = [otelcol.exporter.otlp.tempo.input]
+}
+
+otelcol.receiver.otlp "default" {
+  protocols = ["grpc", "http"]
+  listen_address = "0.0.0.0:12345"
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.processor.batch "default" {}
+
+otelcol.pipeline "traces" {
+  receivers  = [otelcol.receiver.otlp.default.output]
+  processors = [otelcol.processor.batch.default.output]
+  exporters  = [otelcol.exporter.otlp.tempo.input]
+}
+
