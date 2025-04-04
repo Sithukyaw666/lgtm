@@ -12,6 +12,4 @@ storage:
   trace:
     backend: local
     local:
-      path: /tmp/tempo
-    wal:
-      path: /tmp/tempo/wal
+      path: /tmp/tempo/traces

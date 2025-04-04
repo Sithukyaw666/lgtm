@@ -5,9 +5,9 @@ services:
       - "3000:3000"
     environment:
       - MONGO_URL=mongodb://admin:admin@mongo:27017
+      - TEMPO_URL=http://tempo:4318
     depends_on:
       - mongo
-      - alloy
 
   mongo:
     image: mongo:latest
@@ -17,23 +17,11 @@ services:
     volumes:
       - mongo-data:/data/db
   
-  alloy:
-    image: grafana/alloy:latest
-    volumes:
-      - ./config/config.alloy:/etc/alloy/config.alloy
-    ports:
-      - "12345:12345"
-      - "4317:4317"
-      - "4318:4318"
-
   tempo:
     image: grafana/tempo:latest
     ports:
       - "3200:3200"
-    environment:
-      - TEMPO_STORAGE=MEMORY
-      - TEMPO_RECEIVER=GRPC
-      - TEMPO_RECEIVER_GRPC_PORT=3200
+      - "4318:4318"
     volumes:
       - ./config/tempo-config.yaml:/etc/tempo/config.yaml
     command: ["-config.file=/etc/tempo/config.yaml"]
