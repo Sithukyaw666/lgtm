@@ -1,33 +1,35 @@
-logging {
-  level  = "info"
-  format = "logfmt"
+server "otel-collector" {
+  otlp {
+    protocols {
+      http {
+        endpoint = "0.0.0.0:4318"
+      }
+    }
+  }
 }
 
-tracing {
-  sampling_fraction = 1.0
-  write_to = [otelcol.exporter.otlp.tempo.input]
-}
-
-otelcol.receiver.otlp "default" {
-  protocols = ["grpc", "http"]
-  listen_address = "0.0.0.0:12345"
-}
-
-otelcol.exporter.otlp "tempo" {
-  client {
-    endpoint = "tempo:4317"
-
-    tls {
-      insecure = true
+otelcol.receiver.otlp "http" {
+  protocols {
+    http {
+      endpoint = "0.0.0.0:4318"
     }
   }
 }
 
 otelcol.processor.batch "default" {}
 
-otelcol.pipeline "traces" {
-  receivers  = [otelcol.receiver.otlp.default.output]
-  processors = [otelcol.processor.batch.default.output]
-  exporters  = [otelcol.exporter.otlp.tempo.input]
+otelcol.exporter.otlp "tempo" {
+  endpoint = "http://tempo:4317" 
+  tls {
+    insecure = true 
 }
 
+otelcol.service "default" {
+  pipelines {
+    traces = [
+      otelcol.receiver.otlp.http,
+      otelcol.processor.batch.default,
+      otelcol.exporter.otlp.tempo,
+    ]
+  }
+}
