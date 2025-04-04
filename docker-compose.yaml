@@ -4,11 +4,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - OTEL_TRACES_EXPORTER="otlp"
-      - OTEL_EXPORTER_OTLP_ENDPOINT="http://tempo:4317"
-      - OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-      - OTEL_SERVICE_NAME="web-app"
-      - NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
       - MONGO_URL=mongodb://admin:admin@mongo:27017
     depends_on:
       - mongo
@@ -20,6 +17,21 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
       - mongo-data:/data/db
+  
+
+  otel-collector:
+  image: otel/opentelemetry-collector-contrib
+  volumes:
+    - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+  ports:
+    - 1888:1888 # pprof extension
+    - 8888:8888 # Prometheus metrics exposed by the Collector
+    - 8889:8889 # Prometheus exporter metrics
+    - 13133:13133 # health_check extension
+    - 4317:4317 # OTLP gRPC receiver
+    - 4318:4318 # OTLP http receiver
+    - 55679:55679 # zpages extension
+
   
   tempo:
     image: grafana/tempo:latest
