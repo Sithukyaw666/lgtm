@@ -8,7 +8,7 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
       - OTEL_SERVICE_NAME=book-api 
       - export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-      - MONGO_URL=mongodb://admin:admin@mongo:27017
+      - MONGO_URL=mongodb://admin:admin@mongo:27017/bookstore?authSource=admin
     depends_on:
       - mongo
 
