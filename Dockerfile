@@ -5,4 +5,4 @@ RUN npm i -y
 USER node
 COPY --chown=node:node --chmod=755 . .
 EXPOSE 3000
-ENTRYPOINT [ "npm", "start" ]
+ENTRYPOINT [ "npm","start" ]

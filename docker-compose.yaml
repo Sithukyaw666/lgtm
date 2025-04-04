@@ -4,8 +4,12 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - OTEL_TRACES_EXPORTER="otlp"
+      - OTEL_EXPORTER_OTLP_ENDPOINT="http://tempo:4317"
+      - OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
+      - OTEL_SERVICE_NAME="web-app"
+      - NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
       - MONGO_URL=mongodb://admin:admin@mongo:27017
-      - TEMPO_URL=http://tempo:4318/v1/traces
     depends_on:
       - mongo
 
