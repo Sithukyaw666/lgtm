@@ -5,7 +5,7 @@ services:
       - "3000:3000"
     environment:
       - MONGO_URL=mongodb://admin:admin@mongo:27017
-      - TEMPO_URL=http://tempo:4318
+      - TEMPO_URL=http://tempo:4318/v1/traces
     depends_on:
       - mongo
 
@@ -34,6 +34,17 @@ services:
       - grafana-storage:/var/lib/grafana
     depends_on:
       - tempo
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+    volumes:
+      - ./config/prometheus-config.yaml:/etc/prometheus.yaml
+    ports:
+      - "9090:9090"
     
 volumes:
   mongo-data:
