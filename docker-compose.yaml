@@ -50,9 +50,35 @@ services:
       - ./config/prometheus-config.yaml:/etc/prometheus.yaml
     ports:
       - "9090:9090"
+  
+  minio:
+    image: minio/minio
+    entrypoint: [""]
+    command: ["sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data"]
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
+  
+  mimir:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir.yaml"]
+    hostname: mimir
+    depends_on:
+      - minio
+    volumes:
+      - ./config/mimir-config.yaml:/etc/mimir.yaml
+      - ./config/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+      - mimir-data:/data
     
 volumes:
   mongo-data:
     driver: local
   grafana-storage:
     driver: local
+  minio-data:
+    driver: local
+  mimir-data:
+    driver: local
+    
